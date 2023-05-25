@@ -1,13 +1,13 @@
 name: learn-github-actions
 run-name: ${{ github.actor }} is learning GitHub Actions
-on: [push]
+on:
+  push:
+    branches:
+      - "*"
 
 jobs:
-  check-bats-version:
-    runs-on: example-runnerdeploy-25cc7-5wcdz
+  hello-world:
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '14'
       - run: echo "hello world"
