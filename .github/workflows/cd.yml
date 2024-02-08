@@ -37,40 +37,40 @@ jobs:
     outputs:
       docker_tag: ${{ steps.tag.outputs.sha_short }}
 
-  # Conventional-release:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v3
-  #       with:
-  #         fetch-depth: 0
+  Conventional-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-  #     - name: Release
-  #       id: tag
-  #       uses: liatrio/github-actions/conventional-release@master
-  #       with:
-  #         debug: true
-  #         # GITHUB_HEAD_REF is only set during PRs, otherwise it is ""
-  #         dryRun: ${{ github.head_ref }}
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #   outputs:
-  #     newVersion: ${{ steps.tag.outputs.newVersion }}
+      - name: Release
+        id: tag
+        uses: liatrio/github-actions/conventional-release@master
+        with:
+          debug: true
+          # GITHUB_HEAD_REF is only set during PRs, otherwise it is ""
+          dryRun: ${{ github.head_ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      newVersion: ${{ steps.tag.outputs.newVersion }}
 
-  # Docker-tag:
-  #   runs-on: ubuntu-latest
-  #   #needs: Conventional-release
-  #   steps:
-  #     - uses: actions/checkout@v4
+  Docker-tag:
+    runs-on: ubuntu-latest
+    needs: [Conventional-release, Docker-build]
+    steps:
+      - uses: actions/checkout@v4
 
-  #     - name: Log into registry
-  #       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Log into registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-  #     - name: Semantic Version Tag image
-  #       run: docker image tag $IMAGE_NAME:${{ steps.tag.outputs.sha_short }} $IMAGE_NAME:${{ steps.tag.outputs.newVersion }}
+      - name: Semantic Version Tag image
+        run: docker image tag $IMAGE_NAME:${{ needs.Docker-build.outputs.docker_tag }} $IMAGE_NAME:${{ needs.Conventional-release.outputs.newVersion }}
 
-  #     - name: Semantic Version Tag image
-  #       run: docker image tag $IMAGE_NAME:${{ steps.tag.outputs.sha_short }} $IMAGE_NAME:latest
+      - name: Semantic Version Tag image
+        run: docker image tag $IMAGE_NAME:$${{ needs.Docker-build.outputs.docker_tag }} $IMAGE_NAME:latest
 
   # # only run on changes to infra/*
   # Terraform-apply:
@@ -106,9 +106,9 @@ jobs:
     permissions:
       contents: read
       packages: write
-    needs: Docker-build
+    needs: Conventional-release
     env: 
-      IMAGE_VERSION: ${{ needs.Docker-build.outputs.docker_tag }}
+      IMAGE_VERSION: ${{ needs.Conventional-release.outputs.newVersion }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
