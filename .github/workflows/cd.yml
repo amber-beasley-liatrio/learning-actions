@@ -16,33 +16,15 @@ permissions:
   packages: write
 
 jobs:
-  Dryrun-semantic-release:
-    name: Dryrun Semantic Release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Semantic Release
-        id: semantic
-        uses: cycjimmy/semantic-release-action@v4
-        with:
-          dry_run: true
-    outputs:
-      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
-
   Docker-build:
     name: Build and Push Short Sha Image
     runs-on: ubuntu-latest
-    needs: Dryrun-semantic-release
-    if: ${{ needs.Dryrun-semantic-release.outputs.new_release_published }} == 'true'
     steps:
       - uses: actions/checkout@v4
 
       - name: Generate tag
         id: tag
-        run: |
-          echo ${{ needs.Dryrun-semantic-release.outputs.new_release_published }}
-          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Build image
         run: docker build . --file Dockerfile --tag $IMAGE_NAME:${{ steps.tag.outputs.sha_short }} --label "runnumber=${GITHUB_RUN_ID}"
@@ -57,12 +39,10 @@ jobs:
 
   Semantic-release:
     name: Semantic Release
-    needs: [Docker-build, Dryrun-semantic-release]
+    needs: Docker-build
     runs-on: ubuntu-latest
-    if: ${{ needs.Dryrun-semantic-release.outputs.new_release_published }} == 'true'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4
         id: semantic   # Need an `id` for output variables
@@ -87,11 +67,11 @@ jobs:
     if: ${{ needs.Semantic-release.outputs.new_release_published }} == 'true'
     steps:
       - uses: actions/checkout@v4
-
       - name: Log into registry
+        if: ${{ needs.Semantic-release.outputs.new_release_published }} == 'true'
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
       - name: Semantic Version Tag image
+        if: ${{ needs.Semantic-release.outputs.new_release_published }} == 'true'
         run: |
           docker pull $IMAGE_NAME:${{ needs.Docker-build.outputs.docker_tag }}
           docker image tag $IMAGE_NAME:${{ needs.Docker-build.outputs.docker_tag }} $IMAGE_NAME:v${{ needs.Semantic-release.outputs.release-version }}
@@ -133,12 +113,11 @@ jobs:
     permissions:
       contents: read
       packages: write
-    needs: [Semantic-release, Docker-tag, Dryrun-semantic-release]
-    if: ${{ needs.Semantic-release.outputs.new_release_published }} == 'true'
+    needs: [Semantic-release, Docker-tag]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Update webapp
+        if: ${{ needs.Semantic-release.outputs.new_release_published }} == 'true'
         run: echo "fake update web app to version:v${{ needs.Semantic-release.outputs.release-version }}"
 
       # - name: Update webapp
