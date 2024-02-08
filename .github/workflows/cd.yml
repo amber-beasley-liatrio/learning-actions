@@ -41,20 +41,23 @@ jobs:
     runs-on: ubuntu-latest
     needs: Docker-build
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
+  
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          fetch-depth: 0
-
-      - uses: liatrio/github-actions-conventional-release@v0.2.0
-        id: tag
-        with:
-          debug: false
-          dryRun: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    outputs:
-      newVersion: ${{ steps.tag.outputs.newVersion }}
+          node-version: '14'
+  
+      - name: Install dependencies
+        run: npm install @semantic-release/commit-analyzer
+  
+      - name: Analyze commits and output semantic version
+        id: semantic-version
+        run: npx semantic-release -d
+  
+      - name: Output Semantic Version
+        run: echo "::set-output name=semantic-version::${{ steps.semantic-version.outputs.version }}"
 
   Docker-tag:
     runs-on: ubuntu-latest
@@ -66,7 +69,7 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Semantic Version Tag image
-        run: docker image tag $IMAGE_NAME:${{ needs.Docker-build.outputs.docker_tag }} $IMAGE_NAME:${{ needs.Conventional-release.outputs.newVersion }}
+        run: docker image tag $IMAGE_NAME:${{ needs.Docker-build.outputs.docker_tag }} $IMAGE_NAME:${{ needs.Conventional-release.outputs.semantic-version }}
 
       - name: Semantic Version Tag image
         run: docker image tag $IMAGE_NAME:$${{ needs.Docker-build.outputs.docker_tag }} $IMAGE_NAME:latest
@@ -97,7 +100,7 @@ jobs:
   #         ARM_TENANT_ID: "1b4a4fed-fed8-4823-a8a0-3d5cea83d122"
   #         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SPONSORED_SUBSCRIPTION_ID }}
   #         ARM_USE_OIDC: true
-  #         TF_VAR_image_tag: ${{ steps.tag.outputs.newVersion }}
+  #         TF_VAR_image_tag: ${{ steps.tag.outputs.semantic-version }}
 
 
   Deploy-image:
@@ -107,7 +110,7 @@ jobs:
       packages: write
     needs: Conventional-release
     env: 
-      IMAGE_VERSION: ${{ needs.Conventional-release.outputs.newVersion }}
+      IMAGE_VERSION: ${{ needs.Conventional-release.outputs.semantic-version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
