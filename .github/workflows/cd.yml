@@ -55,13 +55,9 @@ jobs:
 
       - name: Semantic Release
         id: semantic-release
-        run: npx semantic-release
-
-      - name: Set Release Version
-        id: set-release-version
-        run: echo "::set-output name=release-version::$(npx -c 'console.log(require(\"./package.json\").version)')"
-    outputs:
-      release-version: ${{ steps.set-release-version.outputs.release-version }}
+        run: |
+          npx semantic-release
+          echo "::set-output name=release-version::$(npx semantic-release --print-release)"
 
   Docker-tag:
     runs-on: ubuntu-latest
