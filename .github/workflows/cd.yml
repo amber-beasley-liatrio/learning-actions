@@ -73,9 +73,9 @@ jobs:
       - name: Semantic Version Tag image
         run: |
           docker pull $IMAGE_NAME:${{ needs.Docker-build.outputs.docker_tag }}
-          docker image tag $IMAGE_NAME:${{ needs.Docker-build.outputs.docker_tag }} $IMAGE_NAME:${{ needs.Semantic-release.outputs.release-version }}
+          docker image tag $IMAGE_NAME:${{ needs.Docker-build.outputs.docker_tag }} $IMAGE_NAME:v${{ needs.Semantic-release.outputs.release-version }}
           docker image tag $IMAGE_NAME:${{ needs.Docker-build.outputs.docker_tag }} $IMAGE_NAME:latest
-          docker push $IMAGE_NAME:${{ needs.Semantic-release.outputs.release-version }}
+          docker push $IMAGE_NAME:v${{ needs.Semantic-release.outputs.release-version }}
           docker push $IMAGE_NAME:latest
 
   # # only run on changes to infra/*
@@ -117,7 +117,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Update webapp
-        run: echo "fake update web app to version:${{ needs.Semantic-release.outputs.release-version }}"
+        run: echo "fake update web app to version:v${{ needs.Semantic-release.outputs.release-version }}"
 
       # - name: Update webapp
       #   uses: azure/webapps-deploy@v2
