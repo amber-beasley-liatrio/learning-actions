@@ -66,7 +66,7 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Semantic Version Tag image
-        run: docker image tag $IMAGE_NAME:${{ needs.Docker-build.outputs.docker_tag }} $IMAGE_NAME:${{ needs.Semantic-release.outputs.version }}
+        run: docker image tag $IMAGE_NAME:${{ needs.Docker-build.outputs.docker_tag }} $IMAGE_NAME:${{ needs.Semantic-release.outputs.release-versio }}
 
       - name: Semantic Version Tag image
         run: docker image tag $IMAGE_NAME:$${{ needs.Docker-build.outputs.docker_tag }} $IMAGE_NAME:latest
@@ -105,14 +105,12 @@ jobs:
     permissions:
       contents: read
       packages: write
-    needs: Semantic-release
-    env: 
-      IMAGE_VERSION: ${{ needs.Semantic-release.outputs.version }}
+    needs: [Semantic-release, Docker-tag]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Update webapp
-        run: echo "fake update web app to version:${IMAGE_VERSION}"
+        run: echo "fake update web app to version:${{ needs.Semantic-release.outputs.release-version }}"
 
       # - name: Update webapp
       #   uses: azure/webapps-deploy@v2
