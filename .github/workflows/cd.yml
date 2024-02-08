@@ -57,7 +57,7 @@ jobs:
         id: semantic-release
         run: npx semantic-release
     outputs:
-      release-version: ${{ steps.semantic-release.outputs.release-version }}
+      release-version: ${{ steps.semantic-release.outputs.new_release_version }}
 
   Docker-tag:
     runs-on: ubuntu-latest
