@@ -54,7 +54,10 @@ jobs:
         run: npm install semantic-release @semantic-release/git
 
       - name: Semantic Release
+        id: semantic-release
         run: npx semantic-release
+    outputs:
+      release-version: ${{ steps.semantic-release.outputs.release-version }}
 
   Docker-tag:
     runs-on: ubuntu-latest
