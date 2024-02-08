@@ -56,7 +56,6 @@ jobs:
       - name: Semantic Release
         id: semantic-release
         run: |
-          npx semantic-release
           echo "::set-output name=release-version::$(npx semantic-release --print-release)"
 
   Docker-tag:
