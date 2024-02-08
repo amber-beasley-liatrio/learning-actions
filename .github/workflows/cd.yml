@@ -39,19 +39,18 @@ jobs:
 
   Conventional-release:
     runs-on: ubuntu-latest
+    needs: Docker-build
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Release
+      - uses: liatrio/github-actions-conventional-release@v0.2.0
         id: tag
-        uses: liatrio/github-actions/conventional-release@master
         with:
-          debug: true
-          # GITHUB_HEAD_REF is only set during PRs, otherwise it is ""
-          dryRun: ${{ github.head_ref }}
+          debug: false
+          dryRun: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     outputs:
