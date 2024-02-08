@@ -69,10 +69,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Log into registry
-        if: needs.Semantic-release.outputs.new_release_published == 'true'
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Semantic Version Tag image
-        if: needs.Semantic-release.outputs.new_release_published == 'true'
         run: |
           docker pull $IMAGE_NAME:${{ needs.Docker-build.outputs.docker_tag }}
           docker image tag $IMAGE_NAME:${{ needs.Docker-build.outputs.docker_tag }} $IMAGE_NAME:v${{ needs.Semantic-release.outputs.release-version }}
@@ -119,7 +117,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Update webapp
-        if: needs.Semantic-release.outputs.new_release_published == 'true'
         run: echo "fake update web app to version:v${{ needs.Semantic-release.outputs.release-version }}"
 
       # - name: Update webapp
