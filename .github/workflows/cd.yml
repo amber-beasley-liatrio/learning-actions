@@ -58,6 +58,7 @@ jobs:
 
   Docker-build:
     name: Build and Push Short Sha Image
+    needs: Update-version-py
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
