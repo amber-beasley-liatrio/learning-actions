@@ -19,7 +19,7 @@ jobs:
   Semantic-release-dry-run:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.release.outputs.version }}
+      version: ${{ steps.release.outputs.new_release_version }}
 
     steps:
       - name: Checkout repository
@@ -27,9 +27,17 @@ jobs:
 
       - name: Semantic Release Dry Run
         id: release
-        uses: semantic-release/semantic-release@v17
+        uses: cycjimmy/semantic-release-action@v4
         with:
-          dryRun: true
+          dry_run: true
+
+      - name: Do something when a new release published
+        run: |
+          echo ${{ steps.release.outputs.new_release_published }}
+          echo ${{ steps.release.outputs.new_release_version }}
+          echo ${{ steps.release.outputs.new_release_major_version }}
+          echo ${{ steps.release.outputs.new_release_minor_version }}
+          echo ${{ steps.release.outputs.new_release_patch_version }}
 
   Update-version-py:
     runs-on: ubuntu-latest
