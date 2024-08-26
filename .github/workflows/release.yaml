@@ -1,0 +1,35 @@
+name: release
+on:
+  push:
+    branches:
+      - main
+    
+jobs:
+    release:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Run go-semantic-release
+          uses: go-semantic-release/action@v1
+          id: go-semantic-release
+          with:
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+            changelog-generator-opt: emojis=true
+            allow-initial-development-versions: true
+        
+        - name: Download build artifact
+          if: steps.go-semantic-release.outputs.version != ''
+          uses: actions/download-artifact@v4
+          with:
+            name: evaluation-results.json
+
+        - name: Upload Release Asset
+          if: steps.go-semantic-release.outputs.version != ''
+          uses: actions/upload-release-asset@v1.0.2
+          env:
+            GITHUB_TOKEN: ${{ github.token }}
+            UPLOAD_URL: ${{ env.UPLOAD_URL }}
+          with:
+            upload_url: ${{ env.UPLOAD_URL }}
+            asset_path: evaluation-results.json
+            asset_name: evaluation-results.json
+            asset_content_type: application/json
