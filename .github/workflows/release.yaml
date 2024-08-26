@@ -25,6 +25,7 @@ jobs:
           uses: actions/download-artifact@v4
           with:
             name: evaluation-results
+            path: evaluation-results.json
 
         - name: Upload Release Asset
           if: steps.go-semantic-release.outputs.version != ''
