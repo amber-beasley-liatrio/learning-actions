@@ -45,7 +45,7 @@ jobs:
           fi
           echo "UPLOAD_URL=$upload_url" >> $GITHUB_ENV
 
-      - name: Download build artifact
+      - name: Download policy evaluation artifact
         if: steps.go-semantic-release.outputs.version != ''
         uses: actions/download-artifact@v4
         with:
