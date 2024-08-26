@@ -1,0 +1,22 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create evaluation-results.json
+        run: echo '{}' > evaluation-results.json
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: evaluation-results
+          path: evaluation-results.json
