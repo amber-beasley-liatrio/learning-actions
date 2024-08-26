@@ -24,7 +24,7 @@ jobs:
           if: steps.go-semantic-release.outputs.version != ''
           uses: actions/download-artifact@v4
           with:
-            name: evaluation-results.json
+            name: evaluation-results
 
         - name: Upload Release Asset
           if: steps.go-semantic-release.outputs.version != ''
@@ -34,6 +34,6 @@ jobs:
             UPLOAD_URL: ${{ env.UPLOAD_URL }}
           with:
             upload_url: ${{ env.UPLOAD_URL }}
-            asset_path: evaluation-results.json
-            asset_name: evaluation-results.json
+            asset_path: evaluation-results
+            asset_name: evaluation-results
             asset_content_type: application/json
