@@ -23,9 +23,8 @@ jobs:
         - name: Download build artifact
           if: steps.go-semantic-release.outputs.version != ''
           uses: actions/download-artifact@v4
-          with:
-            name: evaluation-results
-            path: evaluation-results.json
+        - name: List files
+          run: ls -R
 
         - name: Upload Release Asset
           if: steps.go-semantic-release.outputs.version != ''
