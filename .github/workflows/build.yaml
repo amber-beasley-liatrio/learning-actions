@@ -49,6 +49,6 @@ jobs:
         if: steps.go-semantic-release.outputs.version != ''
         uses: softprops/action-gh-release@01570a1f39cb168c169c802c3bceb9e93fb10974 # v2.1.0
         with:
-          files: evaluation-results.json
+          files: evaluation-results
           tag_name: v${{ steps.go-semantic-release.outputs.version }}
           token: ${{ steps.octo-sts.outputs.token }}
