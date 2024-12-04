@@ -2,13 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - "*"
-
-permissions:
-  id-token: write
-  contents: read
-  attestations: write
-  packages: write
+      - "**"
 
 jobs:
   build:
@@ -27,7 +21,6 @@ jobs:
           path: evaluation-results.json
 
   go-semantic-release:
-    if: ${{ github.ref == 'refs/heads/main' }}
     needs: [build]
     runs-on: ubuntu-latest
     permissions:
