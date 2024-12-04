@@ -25,47 +25,22 @@ jobs:
         with:
           name: evaluation-results
           path: evaluation-results.json
-  release:
+  go-semantic-release:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [build]
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     permissions:
-      contents: write
+      id-token: write
     steps:
-      - name: Run go-semantic-release
-        uses: go-semantic-release/action@48d83acd958dae62e73701aad20a5b5844a3bf45 # v1.23.0
-        id: go-semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
+        id: octo-sts
         with:
+          scope: value-to-be-replaced-in-template
+          identity: semantic-release
+
+      - name: Run go-semantic-release
+        uses: go-semantic-release/action@v1
+        with:
+          github-token: amber-beasley-liatrio/learning-actions
           changelog-generator-opt: emojis=true
           allow-initial-development-versions: true
-
-      # - name: Get release
-      #   if: steps.go-semantic-release.outputs.version != ''
-      #   id: get_release
-      #   run: |
-      #     response=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${{ steps.go-semantic-release.outputs.version}}")
-      #     upload_url=$(echo "$response" | jq -r '.upload_url')
-      #     if [ "$upload_url" = "null" ]; then
-      #       echo "::error::Upload URL is null for the v${{steps.go-semantic-release.outputs.version }} release."
-      #       exit 1
-      #     fi
-      #     echo "UPLOAD_URL=$upload_url" >> $GITHUB_ENV
-
-      # - name: Download policy evaluation artifact
-      #   if: steps.go-semantic-release.outputs.version != ''
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: evaluation-results
-
-      # - name: Upload Release Asset
-      #   if: steps.go-semantic-release.outputs.version != ''
-      #   uses: actions/upload-release-asset@v1.0.2
-      #   env:
-      #     GITHUB_TOKEN: ${{ github.token }}
-      #     UPLOAD_URL: ${{ env.UPLOAD_URL }}
-      #   with:
-      #     upload_url: ${{ env.UPLOAD_URL }}
-      #     asset_path: evaluation-results.json
-      #     asset_name: evaluation-results
-      #     asset_content_type: application/json
