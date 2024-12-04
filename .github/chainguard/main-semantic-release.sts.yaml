@@ -1,0 +1,6 @@
+issuer: https://token.actions.githubusercontent.com
+subject_pattern: "repo:amber-beasley-liatrio/learning-actions:ref:refs/heads/main"
+
+permissions:
+  contents: write
+  packages: write
