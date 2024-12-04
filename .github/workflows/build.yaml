@@ -25,6 +25,7 @@ jobs:
         with:
           name: evaluation-results
           path: evaluation-results.json
+
   go-semantic-release:
     if: ${{ github.ref == 'refs/heads/main' }}
     needs: [build]
@@ -32,6 +33,11 @@ jobs:
     permissions:
       id-token: write
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: evaluation-results
+
       - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
         id: octo-sts
         with:
@@ -45,10 +51,11 @@ jobs:
           github-token: ${{ steps.octo-sts.outputs.token }}
           changelog-generator-opt: emojis=true
           allow-initial-development-versions: true
+
       - name: Upload Results/Sigstore Bundle as Release Asset
         if: steps.go-semantic-release.outputs.version != ''
         uses: softprops/action-gh-release@01570a1f39cb168c169c802c3bceb9e93fb10974 # v2.1.0
         with:
-          files: evaluation-results
+          files: evaluation-results.json
           tag_name: v${{ steps.go-semantic-release.outputs.version }}
           token: ${{ steps.octo-sts.outputs.token }}
