@@ -36,7 +36,7 @@ jobs:
         id: octo-sts
         with:
           scope: amber-beasley-liatrio/learning-actions
-          identity: semantic-release
+          identity: main-semantic-release
 
       - name: Run go-semantic-release
         uses: go-semantic-release/action@v1
