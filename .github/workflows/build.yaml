@@ -36,7 +36,7 @@ jobs:
         with:
           # can only run on main branch
           scope: amber-beasley-liatrio/learning-actions
-          identity: ${{ github.ref_name }}-semenatic-release
+          identity: ${{ github.ref_name == 'main' && github.ref_name || 'pr' }}-semantic-release
 
       - name: Run go-semantic-release
         id: go-semantic-release
