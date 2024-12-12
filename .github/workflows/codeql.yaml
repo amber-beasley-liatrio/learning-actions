@@ -37,6 +37,8 @@ jobs:
 
     - name: Convert results
       run: |
+        ls python.sarif
+        cat python.sarif
         jq '.' python.sarif > simplified-results.json
 
     - name: Upload CodeQL results as artifact
