@@ -28,12 +28,12 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
-        output: codeql-results.sarif
+        output: codeql-results
 
     - name: Convert results
       run: |
-        ls -la
-        jq '.' codeql-results.sarif > simplified-results.json
+        ls -la codeql-results
+        jq '.' codeql-results/python.sarif > simplified-results.json
 
     - name: Upload CodeQL results as artifact
       uses: actions/upload-artifact@v3
