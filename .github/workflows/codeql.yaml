@@ -30,15 +30,10 @@ jobs:
       with:
         output: codeql-results.sarif
 
-    - name: sanity check
-      run: |
-        echo "sanity check"
-        ls *.sarif
-
     - name: Convert results
       run: |
         ls -la
-        jq '.' python.sarif > simplified-results.json
+        jq '.' codeql-results.sarif > simplified-results.json
 
     - name: Upload CodeQL results as artifact
       uses: actions/upload-artifact@v3
