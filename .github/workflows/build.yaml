@@ -5,6 +5,9 @@ on:
       - "**"
 
 jobs:
+  codeql:
+    uses: ./.github/workflows/codeql.yaml
+
   build:
     runs-on: ubuntu-latest
     steps:
