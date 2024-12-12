@@ -30,6 +30,11 @@ jobs:
       with:
         output: codeql-results.sarif
 
+    - name: sanity check
+      run: |
+        echo "sanity check"
+        ls codeql-results.sarif
+
     - name: Convert results
       run: |
         jq '.' codeql-results.sarif > simplified-results.json
