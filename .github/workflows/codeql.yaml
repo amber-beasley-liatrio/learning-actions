@@ -21,6 +21,13 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
+        config: |
+            paths_ignore: 
+                - .github/**
+                - docs/**
+                - tests/**
+                - old-workflows/**
+                - *.md
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3
@@ -32,7 +39,6 @@ jobs:
 
     - name: Convert results
       run: |
-        ls -la codeql-results
         jq '.' codeql-results/python.sarif > simplified-results.json
 
     - name: Upload CodeQL results as artifact
