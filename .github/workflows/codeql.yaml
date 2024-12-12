@@ -21,13 +21,6 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
-        config: |
-            paths_ignore: 
-                - .github/**
-                - docs/**
-                - tests/**
-                - old-workflows/**
-                - *.md
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3
@@ -46,3 +39,5 @@ jobs:
       with:
         name: codeql-results
         path: simplified-results.json
+
+    # attest to the results
