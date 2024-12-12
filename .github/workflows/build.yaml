@@ -5,6 +5,13 @@ on:
       - "**"
 
 jobs:
+  codeql:
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    uses: ./.github/workflows/codeql.yaml
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -36,7 +43,7 @@ jobs:
         with:
           # can only run on main branch
           scope: amber-beasley-liatrio/learning-actions
-          identity: ${{ github.ref_name == 'main' && github.ref_name || 'pr' }}-semantic-release
+          identity: semantic-release
 
       - name: Run go-semantic-release
         id: go-semantic-release
