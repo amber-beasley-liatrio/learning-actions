@@ -34,7 +34,26 @@ jobs:
 
     - name: Convert results
       run: |
-        echo "DB Locations: ${{ steps.analyze.outputs.db-locations }}"
+        DATABASE_DIR=$(jq -r '.python' <<< '${{ steps.analyze.outputs.db-locations }}')
+        DATABASE_METADATA="${DATABASE_DIR}/codeql-database.yml"
+
+        echo "Reading metadata from $DATABASE_METADATA"
+        if [ -f "$DATABASE_METADATA" ]; then
+            DB_URI=$(grep '^uri:' "$DATABASE_METADATA" | awk '{print $2}')
+            DB_VERSION=$(grep '^version:' "$DATABASE_METADATA" | awk '{print $2}')
+            DB_LAST_UPDATE=$(grep '^lastUpdate:' "$DATABASE_METADATA" | awk '{print $2}')
+
+            echo "DB URI: $DB_URI"
+            echo "DB Version: $DB_VERSION"
+            echo "DB Last Update: $DB_LAST_UPDATE"
+
+            echo "DB_URI=$DB_URI" >> $GITHUB_ENV
+            echo "DB_VERSION=$DB_VERSION" >> $GITHUB_ENV
+            echo "DB_LAST_UPDATE=$DB_LAST_UPDATE" >> $GITHUB_ENV
+        else
+            echo "Error: Metadata file not found!"
+            exit 1
+        fi
         echo "SARIF Path: ${{ steps.analyze.outputs.sarif-output }}"
         echo "SARIF ID: ${{ steps.analyze.outputs.sarif-id }}"
         jq '.' codeql-results/python.sarif > simplified-results.json
