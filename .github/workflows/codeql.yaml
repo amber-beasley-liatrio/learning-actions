@@ -29,9 +29,13 @@ jobs:
       uses: github/codeql-action/analyze@v3
       with:
         output: codeql-results
+        wait-for-processing: true
 
     - name: Convert results
       run: |
+        echo "DB Locations: ${{ steps.analyze.outputs.db-locations }}"
+        echo "SARIF Path: ${{ steps.analyze.outputs.sarif-output }}"
+        echo "SARIF ID: ${{ steps.analyze.outputs.sarif-id }}"
         jq '.' codeql-results/python.sarif > simplified-results.json
 
     - name: Upload CodeQL results as artifact
