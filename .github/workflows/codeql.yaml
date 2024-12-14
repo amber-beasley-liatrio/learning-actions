@@ -37,6 +37,8 @@ jobs:
         echo "DB LOCATION: ${{ steps.analyze.outputs.db-locations }}"
         ls -la /home/runner/work/_temp/codeql_databases
         ls -la /home/runner/work/_temp/codeql_databases/python
+        cat /home/runner/work/_temp/codeql_databases/python/codeql-database.yml
+        cat /home/runner/work/_temp/codeql_databases/python/baseline-info.json
         echo "SARIF Path: ${{ steps.analyze.outputs.sarif-output }}"
         echo "SARIF ID: ${{ steps.analyze.outputs.sarif-id }}"
         jq '.' codeql-results/python.sarif > simplified-results.json
