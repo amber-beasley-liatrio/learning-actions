@@ -34,7 +34,8 @@ jobs:
 
     - name: Convert results
       run: |
-        echo "DB LOCATION: ${{ steps.analyze.outputs.db-locations }}""
+        echo "DB LOCATION: ${{ steps.analyze.outputs.db-locations }}"
+        ls -la /home/runner/work/_temp/codeql_databases
         ls -la /home/runner/work/_temp/codeql_databases/python
         echo "SARIF Path: ${{ steps.analyze.outputs.sarif-output }}"
         echo "SARIF ID: ${{ steps.analyze.outputs.sarif-id }}"
