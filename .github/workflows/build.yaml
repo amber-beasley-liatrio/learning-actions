@@ -23,8 +23,8 @@ jobs:
       - name: Upload CodeQL results as artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ steps.anchore-scan.outputs.json }}
-          path: ${{ steps.anchore-scan.outputs.json }}
+          name: anchore-scan-results
+          path: results.json
 
   codeql:
     permissions:
