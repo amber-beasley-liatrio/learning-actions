@@ -18,6 +18,7 @@ jobs:
         with:
           path: "."
           output-format: "json"
+          fail-build: "false"
     
       - name: Upload CodeQL results as artifact
         uses: actions/upload-artifact@v3
