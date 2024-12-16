@@ -32,12 +32,34 @@ jobs:
         output: codeql-results
         wait-for-processing: true
 
-    - name: Convert results
+    # scanner.db.uri
+    # metadata.scanStartedOn -- missing
+    # metadata.scanFinishedOn -- missing
+    - name: Generate Scanner DB URI
+      run: |
+        DB_URI="github.com/${{ github.repository }}/codeql-db/python?workflow=${{ github.workflow }}&commit=${{ github.sha }}"
+        echo "DB_URI=$DB_URI" >> $GITHUB_ENV
+    
+    # scanner.db.version (optional)
+    # scanner.db.lastUpdate
+    - name: Database metadata
       run: |
         echo "DB LOCATION: ${{ steps.analyze.outputs.db-locations }}"
         ls -la /home/runner/work/_temp/codeql_databases
         ls -la /home/runner/work/_temp/codeql_databases/python
         cat /home/runner/work/_temp/codeql_databases/python/codeql-database.yml
+     
+    # scanner
+    # scanner.uri -- missing
+    # scanner.version (optional)
+    # scanner.result
+    # scanner.result.[*].vulnerability.id -- missing -- require lookup against rules
+    # scanner.result.[*].vulnerability.severity -- missing -- require lookup against rules
+    # scanner.result.[*].vulnerability.severity.method -- missing -- require lookup against rules
+    # scanner.result.[*].vulnerability.severity.score -- missing -- require lookup against rules
+     
+    - name: Convert results
+      run: |
         echo "SARIF Path: ${{ steps.analyze.outputs.sarif-output }}"
         echo "SARIF ID: ${{ steps.analyze.outputs.sarif-id }}"
         jq '.' codeql-results/python.sarif > simplified-results.json
