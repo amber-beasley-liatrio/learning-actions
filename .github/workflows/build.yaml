@@ -14,15 +14,16 @@ jobs:
 
       - name: Scan current project
         uses: anchore/scan-action@v3
+        id: anchore-scan
         with:
           path: "."
-          output-file: "achnore-results.json"
+          output-format: "json"
     
       - name: Upload CodeQL results as artifact
         uses: actions/upload-artifact@v3
         with:
-          name: achnore-results
-          path: achnore-results.json
+          name: ${{ steps.anchore-scan.outputs.json }}
+          path: ${{ steps.anchore-scan.outputs.json }}.json
 
   codeql:
     permissions:
