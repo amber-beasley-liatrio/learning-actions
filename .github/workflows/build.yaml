@@ -6,14 +6,24 @@ on:
 
 jobs:
 
-  dependency-review:
+  anchore-scan:
     runs-on: ubuntu-latest
     steps:
-      - name: 'Checkout Repository'
+      - name: Checkout code
         uses: actions/checkout@v4
-      - name: 'Dependency Review'
-        uses: actions/dependency-review-action@v4
-        
+
+      - name: Scan current project
+        uses: anchore/scan-action@v3
+        with:
+          path: "."
+          output-file: "achnore-results.json"
+    
+      - name: Upload CodeQL results as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: achnore-results
+          path: achnore-results.json
+
   codeql:
     permissions:
       actions: read
