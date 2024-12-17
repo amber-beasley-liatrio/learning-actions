@@ -46,7 +46,7 @@ jobs:
           echo $SCAN_STARTED_ON
           echo $SCAN_FINISHED_ON
 
-          # Collect vulnerabilities
+          # Collect vulnerabilities with updated severity structure
           jq -n --arg scannerUri "$SCANNER_URI" \
                 --arg scannerVersion "$SCANNER_VERSION" \
                 --arg dbUri "$DB_URI" \
@@ -57,12 +57,12 @@ jobs:
                 --argjson results "$(jq '[.matches[] | {
                   vulnerability: {
                     id: .vulnerability.id,
-                    severity: [{
-                      method: "cvss",
-                      score: (.vulnerability.cvss[0].metrics.baseScore | tostring)
-                    }]
+                    severity: [
+                      { "method": "nvd", "score": .vulnerability.severity },
+                      { "method": "cvss_score", "score": (.vulnerability.cvss[0].metrics.baseScore | tostring) }
+                    ]
                   }
-                }]' results.json)" \
+                }]' result.json)" \
                 '{
                   scanner: {
                     uri: $scannerUri,
