@@ -60,7 +60,7 @@ jobs:
                     { "method": "nvd", "score": .vulnerability.severity },
                     { "method": "cvss_score", "score": (.vulnerability.cvss[0].metrics.baseScore | tostring) }
                   ]
-                }]' result.json)" \
+                }]' results.json)" \
                 '{
                   scanner: {
                     uri: $scannerUri,
