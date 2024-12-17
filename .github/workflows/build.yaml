@@ -20,7 +20,7 @@ jobs:
           output-format: "json"
           fail-build: "false"
     
-      - name: Upload CodeQL results as artifact
+      - name: Upload Anchore results as artifact
         uses: actions/upload-artifact@v3
         with:
           name: anchore-scan-results
@@ -30,7 +30,7 @@ jobs:
       - name: Generate Predicate JSON
         run: |
           # Load values from results.json
-          SCANNER_URI=$(jq -r '.descriptor.name + "@" + .descriptor.version' results.json)
+          SCANNER_URI=$(jq -r '.descriptor.name' results.json)
           SCANNER_VERSION=$(jq -r '.descriptor.version' results.json)
           DB_URI=$(jq -r '.descriptor.configuration.db.update-url' results.json)
           DB_VERSION=$(jq -r '.descriptor.db.schemaVersion' results.json)
