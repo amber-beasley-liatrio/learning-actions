@@ -26,17 +26,17 @@ jobs:
           name: anchore-scan-results
           path: results.json
 
-    # Read and process the `result.json` file
+    # Read and process the `results.json` file
       - name: Generate Predicate JSON
         run: |
-          # Load values from result.json
-          SCANNER_URI=$(jq -r '.descriptor.name + "@" + .descriptor.version' result.json)
-          SCANNER_VERSION=$(jq -r '.descriptor.version' result.json)
-          DB_URI=$(jq -r '.descriptor.configuration.db.update-url' result.json)
-          DB_VERSION=$(jq -r '.descriptor.db.schemaVersion' result.json)
-          DB_LAST_UPDATE=$(jq -r '.descriptor.db.built' result.json)
-          SCAN_STARTED_ON=$(jq -r '.descriptor.db.built' result.json)
-          SCAN_FINISHED_ON=$(jq -r '.descriptor.timestamp' result.json)
+          # Load values from results.json
+          SCANNER_URI=$(jq -r '.descriptor.name + "@" + .descriptor.version' results.json)
+          SCANNER_VERSION=$(jq -r '.descriptor.version' results.json)
+          DB_URI=$(jq -r '.descriptor.configuration.db.update-url' results.json)
+          DB_VERSION=$(jq -r '.descriptor.db.schemaVersion' results.json)
+          DB_LAST_UPDATE=$(jq -r '.descriptor.db.built' results.json)
+          SCAN_STARTED_ON=$(jq -r '.descriptor.db.built' results.json)
+          SCAN_FINISHED_ON=$(jq -r '.descriptor.timestamp' results.json)
 
           # Collect vulnerabilities
           jq -n --arg scannerUri "$SCANNER_URI" \
@@ -54,7 +54,7 @@ jobs:
                       score: (.vulnerability.cvss[0].metrics.baseScore | tostring)
                     }]
                   }
-                }]' result.json)" \
+                }]' results.json)" \
                 '{
                   scanner: {
                     uri: $scannerUri,
@@ -76,7 +76,7 @@ jobs:
       - name: Upload Predicate JSON
         uses: actions/upload-artifact@v3
         with:
-          name: predicate.json
+          name: predicate
           path: predicate.json         
   
 
