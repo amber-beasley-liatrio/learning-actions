@@ -32,7 +32,7 @@ jobs:
           # Load values from results.json
           SCANNER_URI=$(jq -r '.descriptor.name' results.json)
           SCANNER_VERSION=$(jq -r '.descriptor.version' results.json)
-          DB_URI=$(jq -r '.descriptor.configuration.db.update-url' results.json)
+          DB_URI=$(jq -r '.descriptor.configuration.db."update-url"' results.json)
           DB_VERSION=$(jq -r '.descriptor.db.schemaVersion' results.json)
           DB_LAST_UPDATE=$(jq -r '.descriptor.db.built' results.json)
           SCAN_STARTED_ON=$(jq -r '.descriptor.db.built' results.json)
