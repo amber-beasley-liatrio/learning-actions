@@ -92,7 +92,7 @@ jobs:
         id: attest-dep-scan
         with:
           subject-name: test-name
-          subject-digest: test-digest
+          subject-digest: "sha256: 123test"
           predicate-type: 'https://in-toto.io/attestation/vulns/v0.1'
           predicate-path: dep-scan.json
           push-to-registry: false
