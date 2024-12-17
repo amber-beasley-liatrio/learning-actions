@@ -26,12 +26,59 @@ jobs:
           name: anchore-scan-results
           path: results.json
 
-  codeql:
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    uses: ./.github/workflows/codeql.yaml
+    # Read and process the `result.json` file
+      - name: Generate Predicate JSON
+        run: |
+          # Load values from result.json
+          SCANNER_URI=$(jq -r '.descriptor.name + "@" + .descriptor.version' result.json)
+          SCANNER_VERSION=$(jq -r '.descriptor.version' result.json)
+          DB_URI=$(jq -r '.descriptor.configuration.db.update-url' result.json)
+          DB_VERSION=$(jq -r '.descriptor.db.schemaVersion' result.json)
+          DB_LAST_UPDATE=$(jq -r '.descriptor.db.built' result.json)
+          SCAN_STARTED_ON=$(jq -r '.descriptor.db.built' result.json)
+          SCAN_FINISHED_ON=$(jq -r '.descriptor.timestamp' result.json)
+
+          # Collect vulnerabilities
+          jq -n --arg scannerUri "$SCANNER_URI" \
+                --arg scannerVersion "$SCANNER_VERSION" \
+                --arg dbUri "$DB_URI" \
+                --arg dbVersion "$DB_VERSION" \
+                --arg dbLastUpdate "$DB_LAST_UPDATE" \
+                --arg scanStartedOn "$SCAN_STARTED_ON" \
+                --arg scanFinishedOn "$SCAN_FINISHED_ON" \
+                --argjson results "$(jq '[.matches[] | {
+                  vulnerability: {
+                    id: .vulnerability.id,
+                    severity: [{
+                      method: "cvss",
+                      score: (.vulnerability.cvss[0].metrics.baseScore | tostring)
+                    }]
+                  }
+                }]' result.json)" \
+                '{
+                  scanner: {
+                    uri: $scannerUri,
+                    version: $scannerVersion,
+                    db: {
+                      uri: $dbUri,
+                      version: $dbVersion,
+                      lastUpdate: $dbLastUpdate
+                    },
+                    result: $results
+                  },
+                  metadata: {
+                    scanStartedOn: $scanStartedOn,
+                    scanFinishedOn: $scanFinishedOn
+                  }
+                }' > predicate.json
+
+      # Upload the output file as an artifact
+      - name: Upload Predicate JSON
+        uses: actions/upload-artifact@v3
+        with:
+          name: predicate.json
+          path: predicate.json         
+  
 
   build:
     runs-on: ubuntu-latest
