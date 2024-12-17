@@ -38,39 +38,47 @@ jobs:
           SCAN_STARTED_ON=$(jq -r '.descriptor.db.built' results.json)
           SCAN_FINISHED_ON=$(jq -r '.descriptor.timestamp' results.json)
 
-          # Collect vulnerabilities
-          jq -n --arg scannerUri "$SCANNER_URI" \
-                --arg scannerVersion "$SCANNER_VERSION" \
-                --arg dbUri "$DB_URI" \
-                --arg dbVersion "$DB_VERSION" \
-                --arg dbLastUpdate "$DB_LAST_UPDATE" \
-                --arg scanStartedOn "$SCAN_STARTED_ON" \
-                --arg scanFinishedOn "$SCAN_FINISHED_ON" \
-                --argjson results "$(jq '[.matches[] | {
-                  vulnerability: {
-                    id: .vulnerability.id,
-                    severity: [{
-                      method: "cvss",
-                      score: (.vulnerability.cvss[0].metrics.baseScore | tostring)
-                    }]
-                  }
-                }]' results.json)" \
-                '{
-                  scanner: {
-                    uri: $scannerUri,
-                    version: $scannerVersion,
-                    db: {
-                      uri: $dbUri,
-                      version: $dbVersion,
-                      lastUpdate: $dbLastUpdate
-                    },
-                    result: $results
-                  },
-                  metadata: {
-                    scanStartedOn: $scanStartedOn,
-                    scanFinishedOn: $scanFinishedOn
-                  }
-                }' > predicate.json
+          echo $SCANNER_URI
+          echo $SCANNER_VERSION
+          echo $DB_URI
+          echo $DB_VERSION
+          echo $DB_LAST_UPDATE
+          echo $SCAN_STARTED_ON
+          echo $SCAN_FINISHED_ON
+
+          # # Collect vulnerabilities
+          # jq -n --arg scannerUri "$SCANNER_URI" \
+          #       --arg scannerVersion "$SCANNER_VERSION" \
+          #       --arg dbUri "$DB_URI" \
+          #       --arg dbVersion "$DB_VERSION" \
+          #       --arg dbLastUpdate "$DB_LAST_UPDATE" \
+          #       --arg scanStartedOn "$SCAN_STARTED_ON" \
+          #       --arg scanFinishedOn "$SCAN_FINISHED_ON" \
+          #       --argjson results "$(jq '[.matches[] | {
+          #         vulnerability: {
+          #           id: .vulnerability.id,
+          #           severity: [{
+          #             method: "cvss",
+          #             score: (.vulnerability.cvss[0].metrics.baseScore | tostring)
+          #           }]
+          #         }
+          #       }]' results.json)" \
+          #       '{
+          #         scanner: {
+          #           uri: $scannerUri,
+          #           version: $scannerVersion,
+          #           db: {
+          #             uri: $dbUri,
+          #             version: $dbVersion,
+          #             lastUpdate: $dbLastUpdate
+          #           },
+          #           result: $results
+          #         },
+          #         metadata: {
+          #           scanStartedOn: $scanStartedOn,
+          #           scanFinishedOn: $scanFinishedOn
+          #         }
+          #       }' > predicate.json
 
       # Upload the output file as an artifact
       - name: Upload Predicate JSON
