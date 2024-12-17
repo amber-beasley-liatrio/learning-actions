@@ -55,14 +55,12 @@ jobs:
                 --arg scanStartedOn "$SCAN_STARTED_ON" \
                 --arg scanFinishedOn "$SCAN_FINISHED_ON" \
                 --argjson results "$(jq '[.matches[] | {
-                  vulnerability: {
-                    id: .vulnerability.id,
-                    severity: [
-                      { "method": "nvd", "score": .vulnerability.severity },
-                      { "method": "cvss_score", "score": (.vulnerability.cvss[0].metrics.baseScore | tostring) }
-                    ]
-                  }
-                }]' results.json)" \
+                  id: .vulnerability.id,
+                  severity: [
+                    { "method": "nvd", "score": .vulnerability.severity },
+                    { "method": "cvss_score", "score": (.vulnerability.cvss[0].metrics.baseScore | tostring) }
+                  ]
+                }]' result.json)" \
                 '{
                   scanner: {
                     uri: $scannerUri,
