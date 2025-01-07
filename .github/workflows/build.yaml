@@ -23,79 +23,84 @@ jobs:
           fail-build: "false"
     
       - name: Upload Anchore results as artifact
-        uses: actions/upload-artifact@v3
+        uses: anchore/scan-action@abae793926ec39a78ab18002bc7fc45bbbd94342 # v6.0.0
         with:
-          name: anchore-scan-results
-          path: results.json
+           path: "."
+           output-format: "json"
+           output-file: "results.json"
+           fail-build: "false"
 
-    # Read and process the `results.json` file
-      - name: Generate Predicate JSON
-        run: |
-          # Load values from results.json
-          SCANNER_VERSION=$(jq -r '.descriptor.version' results.json)
-          SCANNER_URI="https://github.com/anchore/grype/releases/tag/$SCANNER_VERSION"
-          DB_URI=$(jq -r '.descriptor.configuration.db."update-url"' results.json)
-          DB_VERSION=$(jq -r '.descriptor.db.schemaVersion' results.json)
-          DB_LAST_UPDATE=$(jq -r '.descriptor.db.built' results.json)
-          SCAN_STARTED_ON=$(jq -r '.descriptor.db.built' results.json)
-          SCAN_FINISHED_ON=$(jq -r '.descriptor.timestamp' results.json)
+      - name: cat results.json
+        run: cat results.json
 
-          echo $SCANNER_URI
-          echo $SCANNER_VERSION
-          echo $DB_URI
-          echo $DB_VERSION
-          echo $DB_LAST_UPDATE
-          echo $SCAN_STARTED_ON
-          echo $SCAN_FINISHED_ON
+    # # Read and process the `results.json` file
+    #   - name: Generate Predicate JSON
+    #     run: |
+    #       # Load values from results.json
+    #       SCANNER_VERSION=$(jq -r '.descriptor.version' results.json)
+    #       SCANNER_URI="https://github.com/anchore/grype/releases/tag/$SCANNER_VERSION"
+    #       DB_URI=$(jq -r '.descriptor.configuration.db."update-url"' results.json)
+    #       DB_VERSION=$(jq -r '.descriptor.db.schemaVersion' results.json)
+    #       DB_LAST_UPDATE=$(jq -r '.descriptor.db.built' results.json)
+    #       SCAN_STARTED_ON=$(jq -r '.descriptor.db.built' results.json)
+    #       SCAN_FINISHED_ON=$(jq -r '.descriptor.timestamp' results.json)
 
-          # Collect vulnerabilities with updated severity structure
-          jq -n --arg scannerUri "$SCANNER_URI" \
-                --arg scannerVersion "$SCANNER_VERSION" \
-                --arg dbUri "$DB_URI" \
-                --arg dbVersion "$DB_VERSION" \
-                --arg dbLastUpdate "$DB_LAST_UPDATE" \
-                --arg scanStartedOn "$SCAN_STARTED_ON" \
-                --arg scanFinishedOn "$SCAN_FINISHED_ON" \
-                --argjson results "$(jq '[.matches[] | {
-                  id: .vulnerability.id,
-                  severity: [
-                    { "method": "nvd", "score": .vulnerability.severity },
-                    { "method": "cvss_score", "score": (.vulnerability.cvss[0].metrics.baseScore | tostring) }
-                  ]
-                }]' results.json)" \
-                '{
-                  scanner: {
-                    uri: $scannerUri,
-                    version: $scannerVersion,
-                    db: {
-                      uri: $dbUri,
-                      version: $dbVersion,
-                      lastUpdate: $dbLastUpdate
-                    },
-                    result: $results
-                  },
-                  metadata: {
-                    scanStartedOn: $scanStartedOn,
-                    scanFinishedOn: $scanFinishedOn
-                  }
-                }' > dep-scan.json
+    #       echo $SCANNER_URI
+    #       echo $SCANNER_VERSION
+    #       echo $DB_URI
+    #       echo $DB_VERSION
+    #       echo $DB_LAST_UPDATE
+    #       echo $SCAN_STARTED_ON
+    #       echo $SCAN_FINISHED_ON
 
-      # Upload the output file as an artifact
-      - name: Upload Predicate JSON
-        uses: actions/upload-artifact@v3
-        with:
-          name: dep-scan
-          path: dep-scan.json  
+    #       # Collect vulnerabilities with updated severity structure
+    #       jq -n --arg scannerUri "$SCANNER_URI" \
+    #             --arg scannerVersion "$SCANNER_VERSION" \
+    #             --arg dbUri "$DB_URI" \
+    #             --arg dbVersion "$DB_VERSION" \
+    #             --arg dbLastUpdate "$DB_LAST_UPDATE" \
+    #             --arg scanStartedOn "$SCAN_STARTED_ON" \
+    #             --arg scanFinishedOn "$SCAN_FINISHED_ON" \
+    #             --argjson results "$(jq '[.matches[] | {
+    #               id: .vulnerability.id,
+    #               severity: [
+    #                 { "method": "nvd", "score": .vulnerability.severity },
+    #                 { "method": "cvss_score", "score": (.vulnerability.cvss[0].metrics.baseScore | tostring) }
+    #               ]
+    #             }]' results.json)" \
+    #             '{
+    #               scanner: {
+    #                 uri: $scannerUri,
+    #                 version: $scannerVersion,
+    #                 db: {
+    #                   uri: $dbUri,
+    #                   version: $dbVersion,
+    #                   lastUpdate: $dbLastUpdate
+    #                 },
+    #                 result: $results
+    #               },
+    #               metadata: {
+    #                 scanStartedOn: $scanStartedOn,
+    #                 scanFinishedOn: $scanFinishedOn
+    #               }
+    #             }' > dep-scan.json
+
+    #   # Upload the output file as an artifact
+    #   - name: Upload Predicate JSON
+    #     uses: actions/upload-artifact@v3
+    #     with:
+    #       name: dep-scan
+    #       path: dep-scan.json  
           
-      - name: Attest Dependency Scan
-        uses: actions/attest@63d2e98e267398337e9a17ec68a5c8d936cb9247 # v2.1.0
-        id: attest-dep-scan
-        with:
-          subject-name: test-name
-          subject-digest: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
-          predicate-type: 'https://in-toto.io/attestation/vulns/v0.1'
-          predicate-path: dep-scan.json
-          push-to-registry: false
+    #   - name: Attest Dependency Scan
+    #     uses: actions/attest@63d2e98e267398337e9a17ec68a5c8d936cb9247 # v2.1.0
+    #     id: attest-dep-scan
+    #     with:
+    #       subject-name: test-name
+    #       subject-digest: "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    #       predicate-type: 'https://in-toto.io/attestation/vulns/v0.1'
+    #       predicate-path: dep-scan.json
+    #       push-to-registry: false
   
 
   build:
