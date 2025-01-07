@@ -23,10 +23,12 @@ jobs:
           fail-build: "false"
     
       - name: Upload Anchore results as artifact
-        uses: actions/upload-artifact@v3
+        uses: anchore/scan-action@abae793926ec39a78ab18002bc7fc45bbbd94342 # v6.0.0
         with:
-          name: anchore-scan-results
-          path: results.json
+           path: "."
+           output-format: "json"
+           output-file: "results.json"
+           fail-build: "false"
 
     # Read and process the `results.json` file
       - name: Generate Predicate JSON
