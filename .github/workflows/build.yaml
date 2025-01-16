@@ -6,10 +6,15 @@ on:
 
 jobs:
   oras:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
-      - uses: oras-project/setup-oras@v1
-      - run: |
-          oras version
-          oras login ghcr.io --username ${{ github.actor }} --password ${{ github.token }}
-          oras push ghcr.io/someorg/policy-hello:1.0.0
+      - name: Setup oras
+        uses: oras-project/setup-oras@v1
+      - name: Oras version
+        run: oras version
+      - name: Oras login
+        run: oras login ghcr.io --username ${{ github.actor }} --password ${{ github.token }}
+      - name: Oras push
+        run: oras push ghcr.io/someorg/policy-hello:1.0.0
